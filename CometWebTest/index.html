@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <input type="text" id="sessionId" /><input type="button" value="进入" onclick="comin()" /><br />
+    <input type="text" id="message" /><input type="button" value="发送" onclick="send()" />
+    <div id="messages"></div>
+    <script type="text/javascript">
+
+        function comin() {
+            var xmlHttp = ajaxFunction();
+            var url = "MyAsyncHandler.ashx?sessionId=" + document.getElementById("sessionId").value;
+            xmlHttp.onreadystatechange = function () {
+                if (xmlHttp.readyState == 4) {
+                    if (xmlHttp.status == 200) {
+                        document.getElementById("messages").innerHTML += xmlHttp.responseText + "<br>";
+
+                        //连接已经结束，马上开启另外一个连接
+                        //看看这句话 呵呵 感觉像无限的 递归
+                        //服务器的一个推 结束,马上开始 继续 一个请求 等待
+                        comin();
+                    }
+                }
+            }
+            xmlHttp.open("get", url, true);
+            xmlHttp.send(null);
+        }
+
+        function send() {
+            var xmlHttp = ajaxFunction();
+            var url = "MyHandler.ashx?sessionId=" + document.getElementById("sessionId").value + "&message=" + document.getElementById("message").value;
+            xmlHttp.onreadystatechange = function () {
+                console.log(xmlHttp.readyState);
+                if (xmlHttp.readyState == 4) {
+
+                    console.log("status:"+xmlHttp.status);
+                    if (xmlHttp.status == 200) {
+
+                    }
+                    else {
+                        //alert("服务器端错误 s");
+                    }
+                }
+                else {
+                    //alert("服务器端错误 1");
+                }
+            }
+            xmlHttp.open("get", url, true);
+            xmlHttp.send(null);
+        }
+
+        function $$(id) { return typeof id == String ? document.getElementById(id) : id; }
+
+        function ajaxFunction() {
+            var xmlHttp;
+            try {
+                xmlHttp = new XMLHttpRequest();
+            }
+
+            catch (e) {
+                try {
+                    xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
+                }
+                catch (e) {
+                    try {
+                        xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+                    }
+                    catch (e) {
+                        alert("您的浏览器不支持AJAX！");
+                        return false;
+                    }
+                }
+            }
+            return xmlHttp;
+        }
+    </script>
+
+</body>
+</html>
